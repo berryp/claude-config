@@ -11,7 +11,44 @@ import re
 import subprocess
 import sys
 
-ROOT = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+
+
+def _read_stdin():
+    """A hook's input: one JSON object on stdin. The scripts the skills run
+    from a shell have none (a terminal, or an empty stdin)."""
+    if sys.stdin is None or sys.stdin.isatty():
+        return {}
+    try:
+        return json.load(sys.stdin)
+    except Exception:
+        return {}
+
+
+INPUT = _read_stdin()
+
+
+def _repository(path):
+    """(working tree top, common git dir) of the checkout `path` is in."""
+    r = subprocess.run(["git", "-C", path, "rev-parse", "--path-format=absolute",
+                        "--show-toplevel", "--git-common-dir"],
+                       capture_output=True, text=True)
+    lines = r.stdout.split()
+    return (lines[0], lines[1]) if r.returncode == 0 and len(lines) == 2 else (None, None)
+
+
+def _root():
+    """The checkout the session works in. CLAUDE_PROJECT_DIR is the project's
+    main checkout even when the session works in one of its linked worktrees
+    (a branch of its own), so the session's directory picks the worktree
+    when it is a checkout of the same repository."""
+    project = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
+    top, common = _repository(INPUT.get("cwd") or os.getcwd())
+    if top and common == _repository(project)[1]:
+        return top
+    return project
+
+
+ROOT = _root()
 CONFIG = os.path.join(ROOT, ".claude", "harness.json")
 STATE = os.path.join(ROOT, ".claude", "state")
 TASK = os.path.join(STATE, "task.json")
@@ -89,10 +126,7 @@ def load_config():
 
 
 def read_input():
-    try:
-        return json.load(sys.stdin)
-    except Exception:
-        return {}
+    return INPUT
 
 
 def read(path, default=""):

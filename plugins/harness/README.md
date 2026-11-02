@@ -5,6 +5,10 @@ engineering" idea: put the rules that matter in the environment, not the
 prompt. It does nothing in a project until that project has
 `.claude/harness.json`, so it is safe to install for every project.
 
+It works in the checkout the session is in: a session in one of the
+project's linked worktrees is checked, guarded and keeps its state
+(`.claude/state/`) there, not in the main checkout.
+
 ## What it does
 
 - **Stop gate.** Before Claude can end a turn that changed files, it runs
