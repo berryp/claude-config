@@ -42,7 +42,8 @@ Write the config against this schema. Omitted keys take the defaults.
   "checks": [
     {"when": ["src/**", "test/**"], "run": "npm run typecheck"},
     {"when": ["src/**", "test/**"], "run": "npm test"},
-    {"when": ["docs/**/*.md"], "if_contains": "```mermaid", "run": "npm run check:diagrams"}
+    {"when": ["docs/**/*.md"], "if_contains": "```mermaid", "run": "npm run check:diagrams"},
+    {"when": ["ios/**"], "run": "xcodebuild -scheme App build", "platforms": ["darwin"]}
   ],
   "forbid": [
     {"paths": [".github/workflows/**"], "message": "CI files are the user's to change"}
@@ -72,6 +73,9 @@ Guidance:
   full tests. Prefer the project's own task names over raw commands.
   Leave out anything slow and occasional (end-to-end, release builds);
   a task contract can add those when a task needs them.
+- `platforms` (`darwin`, `linux`, `windows`) is for a check that only
+  runs on some machines (Xcode builds, Windows installers). Elsewhere the
+  gate skips it and logs it as skipped, rather than failing every turn.
 - `protect` is for edits Claude should never make by hand: generated
   files (with the command that regenerates them in `reason`), build
   output, vendored code. Use `"decision": "ask"` for things the user

@@ -9,7 +9,8 @@ Build it from:
 - `.claude/state/task.json`: objective, acceptance, decisions.
 - `git diff --stat $(cat .claude/state/base)` and untracked files.
 - `.claude/state/gate.log`, the last entry for this tree. Only its checks
-  count as VERIFIED, and its `notes` go under RISKS. NO CHECKS means the
+  count as VERIFIED, its `skipped` checks (not runnable on this platform)
+  go under NOT VERIFIED, and its `notes` go under RISKS. NO CHECKS means the
   project's rules passed but no check covered what changed: say what
   should have checked it. If the last entry is UNVERIFIED or BLOCKED, or
   there's none since the last change, say so first: the task isn't

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Stop hook: Claude can't end a turn that changed the repo until the
 checks pass. In order: the config's `forbid`, `co_change` and
-`registered_in` rules, the `checks` whose `when` matches what changed,
+`registered_in` rules, the `checks` whose `when` matches what changed
+(skipping, and logging, those whose `platforms` exclude this one),
 then the task contract's own `acceptance` commands
 (.claude/state/task.json). A contract adds checks; it can't replace the
 config's.
@@ -13,6 +14,7 @@ in a row it lets Claude stop and logs the turn UNVERIFIED.
 import hashlib
 import json
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -35,14 +37,21 @@ def fingerprint(b):
 
 
 def selected_checks(cfg, changed):
-    out = []
+    """The checks for what changed, and those of them that can't run on
+    this platform (skipped, and logged as such)."""
+    out, skipped = [], []
+    here = platform.system().lower()  # darwin, linux, windows
     for c in cfg["checks"]:
         hit = changed if "when" not in c else [f for f in changed if matches(f, c["when"])]
         if c.get("if_contains"):
             hit = [f for f in hit if c["if_contains"] in read(os.path.join(ROOT, f))]
-        if hit and c["run"] not in out:
+        if not hit or c["run"] in out or c["run"] in skipped:
+            continue
+        if c.get("platforms") and here not in c["platforms"]:
+            skipped.append(c["run"])
+        else:
             out.append(c["run"])
-    return out
+    return out, skipped
 
 
 def rule_failures(cfg, b, changed):
@@ -105,7 +114,7 @@ def main():
     if fp == read(os.path.join(STATE, "last_pass")):
         return
 
-    checks = selected_checks(cfg, changed)
+    checks, skipped = selected_checks(cfg, changed)
     task = load_task() or {}
     extra = [c for c in task.get("acceptance", []) if c not in checks]
     checks += extra
@@ -126,7 +135,7 @@ def main():
     blocks_path = os.path.join(STATE, "blocks")
     entry = {"time": time.strftime("%Y-%m-%dT%H:%M:%S"),
              "source": "config+contract" if extra else "config",
-             "checks": results, "rules": rules, "changed": changed,
+             "checks": results, "skipped": skipped, "rules": rules, "changed": changed,
              "notes": notes(cfg, changed)}
 
     if failure is None:

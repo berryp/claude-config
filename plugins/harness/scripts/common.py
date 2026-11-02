@@ -28,8 +28,9 @@ DEFAULTS = {
     "protect": [],
     # Stop-gate checks, run in order (cheapest first) when a changed file
     # matches `when` (omit `when` to run on any change). `if_contains`
-    # narrows it to changed files containing that text.
-    # [{"run": cmd, "when": [glob], "if_contains": str}]
+    # narrows it to changed files containing that text; `platforms`
+    # ("darwin", "linux", "windows") limits where it can run.
+    # [{"run": cmd, "when": [glob], "if_contains": str, "platforms": [str]}]
     "checks": [],
     # Changes the gate refuses outright: [{"paths": [glob], "message": str}]
     "forbid": [],

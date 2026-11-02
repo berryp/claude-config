@@ -10,7 +10,9 @@ prompt. It does nothing in a project until that project has
 - **Stop gate.** Before Claude can end a turn that changed files, it runs
   the project's rules and checks: `forbid`, `co_change`, `registered_in`,
   then each entry in `checks` whose `when` globs match what changed
-  (cheapest first), then the task contract's `acceptance` commands. On a
+  (cheapest first), then the task contract's `acceptance` commands. A
+  check limited by `platforms` is skipped elsewhere and logged as
+  skipped. On a
   failure the turn continues with the failing output. A tree that already
   passed isn't checked again. After `gate.max_blocks` failures in a row
   it lets Claude stop and logs the turn UNVERIFIED.

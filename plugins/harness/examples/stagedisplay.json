@@ -1,7 +1,7 @@
 {
   "protect": [
     {"paths": [".github/workflows/**"], "decision": "deny",
-     "reason": "Claude's GitHub token can't push workflow changes. Put the proposed file in docs/ci/ and track it in Linear (CLAUDE.md)."},
+     "reason": "Claude's GitHub token can't push workflow changes. Put the proposed file in docs/ci/ and track it in docs/PROJECT.md (CLAUDE.md)."},
     {"paths": ["tests/corpus/ok/*.json"], "decision": "deny",
      "reason": "Goldens are the spec of the timeline and are generated: change the parser, then `mise run bless`, and review the diff as a change in how songs play."},
     {"paths": ["tests/engine/{vectors,timelines}.json"], "decision": "deny",
@@ -13,9 +13,11 @@
   ],
   "checks": [
     {"when": ["mise.toml"], "run": "mise tasks >/dev/null"},
-    {"when": ["mac/", "tests/", "app/", "docs/format.md", "docs/guide.md"], "run": "mise run vet"},
-    {"when": ["mac/", "tests/", "docs/format.md", "docs/guide.md"], "run": "mise run test"},
-    {"when": ["app/", "tests/engine/"], "run": "mise run test:app"},
+    {"when": ["mac/", "tests/", "docs/format.md", "docs/guide.md"], "run": "mise run vet:swift"},
+    {"when": ["app/", "tests/engine/", "tests/transport/"], "run": "mise run vet:app"},
+    {"when": ["mac/", "tests/", "examples/", "docs/format.md", "docs/guide.md"], "run": "mise run test"},
+    {"when": ["app/", "tests/engine/", "tests/transport/"], "run": "mise run test:app"},
+    {"when": ["mac/App/", "mac/project.yml"], "run": "mise run build:mac-app", "platforms": ["darwin"]},
     {"when": ["tools/stems/"], "run": "mise run stems:test"},
     {"when": ["tools/draft/"], "run": "mise run draft:test"},
     {"when": ["schemas/", "scripts/session-schema/", "scripts/gen-session-schema.py"], "run": "mise run check:schemas"},
@@ -36,6 +38,10 @@
   ],
   "notes": [
     {"when": ["tests/corpus/ok/*.json", "tests/engine/{vectors,timelines}.json"],
-     "message": "Goldens changed (review as a change in how songs play)"}
+     "message": "Goldens changed (review as a change in how songs play)"},
+    {"when": ["tests/transport/vectors.json"],
+     "message": "Song clock vectors changed (the contract between bandsync and the phones)"},
+    {"when": ["tests/chordpro/", "tests/sheet/", "tests/sections/"],
+     "message": "Import/export fixtures changed (review as a change in what importing or exporting produces)"}
   ]
 }
