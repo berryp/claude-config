@@ -1,6 +1,6 @@
 {
   "name": "harness",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Per-project agent harness: a Stop gate that runs the project's checks before Claude can call a turn done, a guard for protected paths and pushes, task contracts, an adversarial verifier and change receipts. Inactive until a project adds .claude/harness.json.",
   "author": {
     "name": "Berry Phillips",

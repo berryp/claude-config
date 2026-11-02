@@ -24,13 +24,19 @@ DEFAULTS = {
     # Deny writes outside the project, except under these prefixes.
     "confine_writes": True,
     "allow_outside": ["/tmp/", "/private/tmp/", "/private/var/folders/", "~/.claude/"],
-    # Edits and shell writes: [{"paths": [glob], "decision": "deny"|"ask", "reason": str}]
+    # Edits and shell writes: [{"paths": [glob], "decision": "deny"|"ask",
+    # "reason": str, "gate": bool}]. "gate": true also fails the Stop gate
+    # if the paths changed at all (for paths no tool should write either,
+    # since the guard can't see every way a script writes a file).
     "protect": [],
-    # Stop-gate checks, run in order (cheapest first) when a changed file
-    # matches `when` (omit `when` to run on any change). `if_contains`
-    # narrows it to changed files containing that text; `platforms`
-    # ("darwin", "linux", "windows") limits where it can run.
-    # [{"run": cmd, "when": [glob], "if_contains": str, "platforms": [str]}]
+    # Checks, run in order (cheapest first) when a changed file matches
+    # `when` (omit `when` to run on any change). `if_contains` narrows it
+    # to changed files containing that text; `platforms` ("darwin",
+    # "linux", "windows") limits where it can run; `tier` is "fast" (the
+    # default: every stop) or "final" (end-to-end, UI, slow builds: only
+    # verify.py, before the task is called done).
+    # [{"run": cmd, "when": [glob], "if_contains": str, "platforms": [str],
+    #   "tier": "fast"|"final"}]
     "checks": [],
     # Changes the gate refuses outright: [{"paths": [glob], "message": str}]
     "forbid": [],
@@ -43,7 +49,16 @@ DEFAULTS = {
     # Not failures; flagged in the gate log for the receipt:
     # [{"when": [glob], "message": str}]
     "notes": [],
-    "gate": {"max_blocks": 3, "check_timeout": 1500, "tail": 60},
+    # Project notes that calibrate the verifier: what it has missed before,
+    # with examples. Read by the verifier agent; added to when it misses.
+    "verifier_notes": ".claude/harness-verifier.md",
+    # max_blocks: failed stops in a row before giving up UNVERIFIED.
+    # baseline_check: re-run a failing check at the session's starting
+    # commit (in a temporary worktree) and don't block on a failure that
+    # was already there. baseline_setup: a command run first in that
+    # worktree (installing packages, say), or null.
+    "gate": {"max_blocks": 3, "check_timeout": 1500, "tail": 60,
+             "baseline_check": True, "baseline_setup": None},
 }
 
 # Always protected once a project opts in: the harness's own config.

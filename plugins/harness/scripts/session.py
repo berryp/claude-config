@@ -22,10 +22,12 @@ def main():
         write(base_path, git("rev-parse", "HEAD").strip())
         write(os.path.join(STATE, "blocks"), "0")
         snapshot_baseline()
-    lines = ["Harness active (.claude/harness.json): a Stop gate runs the project's "
+    lines = ["Harness active (.claude/harness.json): a Stop gate runs the project's fast "
              "checks before a turn that changed files can end, and a guard blocks "
-             "protected edits. /contract for non-trivial tasks, the verifier agent "
-             "before calling it done, /receipt at the end."]
+             "protected edits. For a non-trivial task: /harness:contract first, and "
+             "/harness:receipt at the end (it runs the final checks, end-to-end "
+             "included, and the verifier agent). /harness:report and /harness:garden "
+             "for upkeep."]
     ignored = subprocess.run(["git", "-C", ROOT, "check-ignore", "-q", ".claude/state/x"])
     if ignored.returncode != 0:
         lines.append("Note: .claude/state/ isn't gitignored; tell the user it should be.")

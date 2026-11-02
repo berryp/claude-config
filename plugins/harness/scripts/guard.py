@@ -16,6 +16,17 @@ NO_VERIFY = re.compile(r"\bgit\b.*--no-verify\b")
 REDIRECT = re.compile(r"(?:>>?|\btee\s+(?:-a\s+)?)\s*['\"]?([^\s'\";|&]+)")
 LAST_ARG_WRITERS = ("cp", "mv", "truncate", "install", "rsync")
 SEGMENTS = re.compile(r"&&|\|\||;|\|")
+# A script run inline (python -c, a heredoc, node -e, perl -i ...) that
+# looks like it writes files. The guard can't parse it, so a protected path
+# named in it is asked about rather than allowed; the gate's "gate": true
+# rules and forbid catch what still gets through.
+INLINE_SCRIPT = re.compile(
+    r"\b(python[0-9.]*|node|deno|bun|ruby|perl|php)\b[^|;&]*?(\s-[ceEi]\b|\s-\s|<<)")
+WRITES = re.compile(
+    r"open\([^)]*['\"][wax+]|\.write(_text|_bytes|FileSync|File)?\(|json\.dump\(|"
+    r"shutil\.|os\.(replace|rename|remove|unlink)|\bunlink(Sync)?\(|\brename(Sync)?\(|"
+    r"copyFile|\bFile\.(write|open)|\s-p?i\b")
+PATHISH = re.compile(r"[A-Za-z0-9_.@~/{}-]*[/.][A-Za-z0-9_.@~/{}-]+")
 
 
 def decide(decision, reason):
@@ -95,6 +106,15 @@ def check_bash(cfg, cmd):
     for target in write_targets(cmd):
         if rel(target) is not None:
             check_path(cfg, target)
+    if INLINE_SCRIPT.search(cmd) and WRITES.search(cmd):
+        for token in set(PATHISH.findall(cmd)):
+            r = rel(token.strip("'\""))
+            if r is None:
+                continue
+            for rule in cfg["protect"]:
+                if matches(r, rule["paths"]):
+                    decide("ask", "This inline script seems to write %s, which is protected: "
+                                  "%s" % (r, rule.get("reason", "")))
 
 
 def main():
