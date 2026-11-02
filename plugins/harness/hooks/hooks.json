@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {"type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/session.py\""}
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {"type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/guard.py\""}
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {"type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/gate.py\"", "timeout": 1800}
+        ]
+      }
+    ]
+  }
+}
