@@ -101,7 +101,9 @@ DEFAULTS = {
 # Always protected once a project opts in: the harness's own config.
 BUILTIN_PROTECT = [
     {"paths": [".claude/harness.json"], "decision": "ask",
-     "reason": "This changes the harness that checks your work. The user decides."},
+     "reason": "This changes the harness that checks your work, so it's yours to approve. "
+               "Claude lists every change in chat first and makes them in one edit; "
+               "if it didn't, say no and ask for the list."},
 ]
 
 

@@ -10,7 +10,8 @@ description: Run the gardener on a project using the harness - find drift (docs 
 3. Only on the user's yes, make the fixes as small, separate changes
    (one concern each, so each is quick to review), on a branch, following
    the project's process for branches and PRs. Harness changes
-   (`.claude/harness.json`) are the user's to approve one by one.
+   (`.claude/harness.json`) are the user's to approve: list each one
+   (the rule, what it does, why), then make the approved ones in one edit.
 
 To run it regularly, offer a scheduled task (weekly is usually enough)
 that runs the gardener and reports its findings without changing

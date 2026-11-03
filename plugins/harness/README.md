@@ -34,7 +34,9 @@ project's linked worktrees is checked, guarded and keeps its state
   heredocs, `node -e`, `perl -i`); writes outside the project
   (`confine_writes`); pushes to `protected_branches`, including a bare
   `git push` from one; force pushes; and `--no-verify`.
-  `.claude/harness.json` itself always asks. The guard is best-effort:
+  `.claude/harness.json` itself always asks; Claude is told to list
+  every change to it in chat first and make them in one edit, so you
+  get one prompt for a summary you've read. The guard is best-effort:
   the gate's `"gate": true` rules and Claude Code's sandbox
   (`/harness:harness-init` offers to set it up) are what enforce.
 - **Session start.** Records the starting commit, so work committed
