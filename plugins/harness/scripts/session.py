@@ -27,7 +27,9 @@ def main():
              "protected edits. For a non-trivial task: /harness:contract first, and "
              "/harness:receipt at the end (it runs the final checks, end-to-end "
              "included, and the verifier agent). /harness:report and /harness:garden "
-             "for upkeep."]
+             "for upkeep. To change .claude/harness.json, first list every change in "
+             "chat (the rule, what it does, why), then make them all in one edit: "
+             "each edit to it asks the user, who sees only that edit's diff."]
     ignored = subprocess.run(["git", "-C", ROOT, "check-ignore", "-q", ".claude/state/x"])
     if ignored.returncode != 0:
         lines.append("Note: .claude/state/ isn't gitignored; tell the user it should be.")

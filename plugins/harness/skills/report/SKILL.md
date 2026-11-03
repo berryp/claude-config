@@ -16,8 +16,10 @@ description: Report what the harness has done in this project - stops checked, f
    - Pre-existing failures that keep recurring: something on the main
      branch is broken.
 3. Propose concrete changes to `.claude/harness.json` (move a slow check
-   to `"tier": "final"`, narrow a `when`, remove a check). Don't make them
-   without the user's yes; the file is theirs to approve.
+   to `"tier": "final"`, narrow a `when`, remove a check). List each one
+   (the rule, what it does, why). Don't make them without the user's
+   yes; the file is theirs to approve. Then make them all in one edit,
+   since each edit to it asks the user and shows only its own diff.
 
 The log only covers sessions on this machine (`.claude/state/` isn't
 committed), so say how much history it holds.
